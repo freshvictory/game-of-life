@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Conway's Game of Life</title>
+  <link rel="stylesheet" href="main.css">
+</head>
+
+<body>
+  <h1>Conway's Game of Life</h1>
+  <form id="controls">
+    <label for="board-size-slider">Pixels/cell</label>
+    <input type="range" name="board-size" id="board-size-slider" value="2" step="1" min="0" max="8">
+    <label for="speed-slider">Generations/second</label>
+    <input type="range" name="speed" id="speed-slider" value="30" step="10" min="0" max="60">
+    <button id="run-button" type="submit">Run</button>
+    <button id="stop-button" type="button">Stop</button>
+  </form>
+  <canvas id="canvas" width="400" height="400"></canvas>
+  <script type="module">
+    import { run, stop } from './index.js';
+
+    const controlForm = document.getElementById('controls');
+    const boardSizeSlider = document.getElementById('board-size-slider');
+    const speedSlider = document.getElementById('speed-slider');
+    const stopButton = document.getElementById('stop-button');
+    const canvas = document.getElementById('canvas');
+    stopButton.addEventListener('click', function () {
+      stop(canvas);
+    });
+    controlForm.addEventListener('submit', function (event) {
+      event.preventDefault();
+      const cellSize = parseInt(boardSizeSlider.value, 10);
+      const cellSizes = [1, 2, 4, 5, 8, 10, 20, 25, 40];
+      const speed = parseInt(speedSlider.value) || 1;
+      run(canvas, cellSizes[cellSize], speed);
+    });
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,55 @@
+:root {
+  --c-border: #cccccc;
+  --c-shadow: #b1b1b1;
+  --c-menu: #e2e2e2;
+  --c-background: #fefefe;
+  --c-text: #222222;
+  --c-cell: #8d5fbb;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --c-background: #000000;
+    --c-menu: #1d1d1d;
+    --c-border: #333333;
+    --c-text: #eeeeee;
+    --c-shadow: #111111;
+  }
+}
+html {
+  background-color: var(--c-background);
+  color: var(--c-text);
+}
+
+button {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-color: white;
+  border: 1px solid var(--c-border);
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+}
+
+button:active {
+  color: var(--c-shadow);
+}
+
+
+#controls {
+  padding: 1rem;
+  width: max-content;
+  box-shadow: 2px 2px 16px -4px var(--c-shadow);
+  background-color: var(--c-menu);
+  margin: 2rem auto;
+}
+
+#controls input {
+  display: inline-block;
+}
+
+#canvas {
+  box-shadow: 2px 2px 16px -4px var(--c-shadow);
+  border: 1px solid var(--c-border);
+  display: block;
+  margin: 0 auto;
+}
