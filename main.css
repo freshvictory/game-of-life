@@ -69,4 +69,5 @@ button:active {
   display: block;
   margin: 0 auto;
   background-color: var(--c-background);
+  image-rendering: pixelated;
 }

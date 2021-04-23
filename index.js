@@ -61,12 +61,7 @@ function prepRun({ canvasOptions, cellSize, color, board, speed }) {
     runFrame();
     animator = requestAnimationFrame(step);
   };
-  // Without this wrapper, things seem to get out of sync
-  // and Chrome shows every frame being dropped.
-  // Might be a red herring.
-  // requestAnimationFrame(function () {
   animator = requestAnimationFrame(step);
-  // });
 }
 
 
