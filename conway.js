@@ -1,54 +1,39 @@
-const indexFunctions = {
-  left(index, size) {
-    return index % size === 0 ? index + size - 1 : index - 1;
-  },
-  right(index, size) {
-    return index % size === size - 1 ? index - size + 1 : index + 1;
-  },
-  top(index, size) {
-    return index < size ? index + size * (size - 1) : index - size;
-  },
-  bottom(index, size) {
-    return index >= size * (size - 1) ? index - size * (size - 1) : index + size;
-  }
-};
-
 function computeNeighborIndexes(size) {
   const array = new Array(size * size);
-  for (let i = 0; i < array.length; i++) {
-    const left = indexFunctions.left(i, size);
-    const right = indexFunctions.right(i, size);
-    array[i] = [
-      indexFunctions.top(left, size),
-      indexFunctions.top(i, size),
-      indexFunctions.top(right, size),
-      left,
-      right,
-      indexFunctions.bottom(left, size),
-      indexFunctions.bottom(i, size),
-      indexFunctions.bottom(right, size)
-    ];
+  let left = 0, right = 0, top = 0, bottom = 0;
+  let index = 0;
+  for (let y = 0; y < size; y++) {
+    for (let x = 0; x < size; x++) {
+      index = x + y * size;
+      left = x === 0 ? size - 1 : -1;
+      right = x === size - 1 ? -size + 1 : 1;
+      top = y === 0 ? size * (size - 1) : -size;
+      bottom = y === size - 1 ? -size * (size - 1) : size;
+      array[index] = [
+        index + top + left,
+        index + top,
+        index + top + right,
+        index + left,
+        index + right,
+        index + bottom + left,
+        index + bottom,
+        index + bottom + right
+      ];
+    }
   }
   return array;
 }
 
 
-function computeIndexes(size) {
-  const array = new Array(size * size);
-  for (let i = 0; i < array.length; i++) {
-    array[i] = [i % size, Math.floor(i / size)];
+export function random(size, probability) {
+  const board = new Array(size);
+  for (let i = 0; i < size; i++) {
+    board[i] = new Array(size);
+    for (let j = 0; j < size; j++) {
+      board[i][j] = (Math.random() < probability) ? 1 : 0;
+    }
   }
-  return array;
-}
-
-function random(size) {
-  return new Array(size).fill(0)
-    .map(function (y) {
-      return new Array(size).fill(0)
-        .map(function (x) {
-          return Math.round(Math.random() * Math.random());
-        });
-    });
+  return board;
 }
 
 
@@ -56,8 +41,8 @@ export function randomBoard(size) {
   return fromBoard(random(size), size);
 }
 
+
 export function fromBoard(board, size) {
-  const indexes = computeIndexes(size);
   const neighborIndexes = computeNeighborIndexes(size);
   const buffer = new ArrayBuffer(size * size);
   const array = new Uint8Array(buffer);
@@ -74,10 +59,10 @@ export function fromBoard(board, size) {
   return {
     board: array,
     size,
-    neighborIndexes,
-    indexes
+    neighborIndexes
   };
 }
+
 
 export function printBoard({ board, size }) {
   let str = [];
@@ -92,13 +77,14 @@ export function printBoard({ board, size }) {
   return str.join('');
 }
 
+
 // Byte-based implementation adapted from
 // http://www.jagregory.com/abrash-black-book/#chapter-17-the-game-of-life
-export function next({ board, neighborIndexes, indexes, size }) {
-  const newBuffer = board.buffer.slice(0);
+export function next(options) {
+  const newBuffer = options.board.buffer.slice(0);
   const newBoard = new Uint8Array(newBuffer);
-  for (let i = 0; i < board.length; i++) {
-    const cell = board[i];
+  for (let i = 0; i < options.board.length; i++) {
+    const cell = options.board[i];
     const aliveNow = cell & 1;
     const neighbors = (cell & 30) >> 1;
     const isAliveNext = neighbors === 3 || (!!aliveNow && neighbors === 2);
@@ -106,16 +92,11 @@ export function next({ board, neighborIndexes, indexes, size }) {
     const newNeighbors = (newBoard[i] & 30) >> 1;
     newBoard[i] = (newNeighbors << 1) + aliveNext;
     if (aliveNext !== aliveNow) {
-      for (const neighborIndex of neighborIndexes[i]) {
+      for (const neighborIndex of options.neighborIndexes[i]) {
         newBoard[neighborIndex] += isAliveNext ? 2 : -2;
       }
     }
   }
-  return {
-    size,
-    board: newBoard,
-    old: board,
-    neighborIndexes,
-    indexes
-  };
+  options.board = newBoard;
+  return options;
 }

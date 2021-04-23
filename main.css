@@ -4,7 +4,6 @@
   --c-menu: #e2e2e2;
   --c-background: #fefefe;
   --c-text: #222222;
-  --c-cell: #8d5fbb;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -34,22 +33,41 @@ button:active {
   color: var(--c-shadow);
 }
 
-
 #controls {
-  padding: 1rem;
   width: max-content;
   box-shadow: 2px 2px 16px -4px var(--c-shadow);
   background-color: var(--c-menu);
-  margin: 2rem auto;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 1rem auto;
+  padding: 1rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 1rem;
 }
 
 #controls input {
   display: inline-block;
 }
 
+.actions {
+  display: flex;
+  flex-direction: column;
+}
+
+.actions button {
+  width: 100%;
+}
+
+.input-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
 #canvas {
-  box-shadow: 2px 2px 16px -4px var(--c-shadow);
-  border: 1px solid var(--c-border);
+  /* box-shadow: 2px 2px 16px -4px var(--c-shadow); */
+  border: 1px solid var(--c-background);
   display: block;
   margin: 0 auto;
+  background-color: var(--c-background);
 }

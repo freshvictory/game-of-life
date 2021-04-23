@@ -1,65 +1,85 @@
-import { randomBoard, next, printBoard } from './conway.js';
+import * as Canvas from './canvas.js';
+import * as Conway from './Conway.js';
 
-
-function drawChanged(context, cellSize, cellColor, { board, old, indexes }) {
-  for (let i = 0; i < board.length; i++) {
-    if ((board[i] & 1) !== (old[i] & 1)) {
-      drawCell(context, cellSize, cellColor, indexes[i], board[i] & 1);
-    }
-  }
-}
-
-function drawCell(context, cellSize, cellColor, [x, y], value) {
-  if (value) {
-    context.fillStyle = cellColor;
-    context.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
-  } else {
-    context.clearRect(x * cellSize, y * cellSize, cellSize, cellSize);
-  }
-}
-
-function draw(context, cellSize, cellColor, board) {
-  if (board.old) {
-    drawChanged(context, cellSize, cellColor, board);
-  } else {
-    board.board.forEach(function (cell, index) {
-      drawCell(context, cellSize, cellColor, board.indexes[index], cell & 1);
-    });
-  }
-}
 
 let animator = -1;
-export function run(canvas, cellSize, speed) {
+export function run({ canvas, cellSize, speed, color, probability }) {
   cancelAnimationFrame(animator);
-  const { clientWidth: canvasSize } = canvas;
-  const size = canvasSize / cellSize;
-  const context = canvas.getContext('2d', { alpha: false });
-  const cellColor = getComputedStyle(document.body).getPropertyValue('--c-cell');
-  let board = randomBoard(size);
-  draw(context, cellSize, cellColor, board);
-  const millisecondsPerGeneration = 1000 / speed;
-
-  let lastRun = 0;
-  function step(time) {
-    if (!lastRun || (time - lastRun >= millisecondsPerGeneration)) {
-      try {
-        board = next(board);
-        draw(context, cellSize, cellColor, board);
-        lastRun = time;
-      } catch (e) {
-        console.error(e);
-        return;
-      }
-    }
-    animator = requestAnimationFrame(step);
-  };
-
-  animator = requestAnimationFrame(step);
+  setTimeout(function () {
+    runInternal({
+      canvas,
+      color,
+      cellSize,
+      speed,
+      probability,
+      initialBoard: undefined
+    });
+  }, 0);
 }
+
 
 export function stop(canvas) {
   cancelAnimationFrame(animator);
-  const { clientWidth: canvasSize } = canvas;
-  const context = canvas.getContext('2d');
-  context.clearRect(0, 0, canvasSize, canvasSize);
+  const canvasOptions = Canvas.getOptions(canvas);
+  Canvas.clear(canvasOptions);
+}
+
+
+function runInternal({ canvas, cellSize, color, initialBoard, speed, probability }) {
+  const canvasOptions = Canvas.getOptions(canvas);
+  const size = canvasOptions.canvasSize / cellSize;
+  Canvas.clear(canvasOptions);
+  initialBoard = initialBoard || Conway.random(size, probability);
+  let board = Conway.fromBoard(initialBoard, size);
+  let updateBoard;
+  if (speed > 1) {
+    updateBoard = function () {
+      Canvas.draw({
+        canvasOptions,
+        cellSize,
+        color,
+        board
+      });
+      for (let i = 0; i < speed; i++) {
+        board = Conway.next(board);
+      }
+    };
+  } else if (speed < 1) {
+    speed = Math.round(1 / speed);
+    let speedTimer = speed;
+    updateBoard = function () {
+      if (speedTimer < 1) {
+        Canvas.draw({
+          canvasOptions,
+          cellSize,
+          color,
+          board
+        });
+        board = Conway.next(board);
+        console.log(board);
+        speedTimer = speed;
+      }
+      speedTimer--;
+    };
+  } else {
+    updateBoard = function () {
+      Canvas.draw({
+        canvasOptions,
+        cellSize,
+        color,
+        board
+      });
+      board = Conway.next(board);
+    };
+  }
+  function step() {
+    updateBoard();
+    animator = requestAnimationFrame(step);
+  };
+  // Without this wrapper, things seem to get out of sync
+  // and Chrome shows every frame being dropped.
+  // Might be a red herring.
+  setTimeout(function () {
+    animator = requestAnimationFrame(step);
+  });
 }
