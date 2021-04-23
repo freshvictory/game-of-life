@@ -65,7 +65,6 @@ button:active {
 }
 
 #canvas {
-  /* box-shadow: 2px 2px 16px -4px var(--c-shadow); */
   border: 1px solid var(--c-background);
   display: block;
   margin: 0 auto;
