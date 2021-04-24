@@ -20,15 +20,14 @@ export function run({ canvas, cellSize, speed, color, probability }) {
 
 export function stop(canvas) {
   cancelAnimationFrame(animator);
-  const canvasOptions = Canvas.getOptions(canvas);
-  Canvas.clear(canvasOptions);
+  Canvas.clear(canvas);
 }
 
 
 function runInternal({ canvas, cellSize, color, initialBoard, speed, probability }) {
   const canvasOptions = Canvas.getOptions(canvas);
   const size = canvasOptions.canvasSize / cellSize;
-  Canvas.clear(canvasOptions);
+  Canvas.clear(canvas);
   initialBoard = initialBoard || Conway.random(size, probability);
   let board = Conway.fromBoard(initialBoard, size);
   setTimeout(function () {
@@ -92,8 +91,8 @@ function stepOnePerFrame({
       color,
       board
     });
-    generationTotal++;
     if (generationTotal < first.length) {
+      generationTotal++;
       board = first[generationTotal - 1];
     } else {
       board = Conway.next(board);
@@ -119,8 +118,8 @@ function stepMultiGeneration({
       board
     });
     for (let i = 0; i < speed; i++) {
-      generationTotal++;
       if (generationTotal < first.length) {
+        generationTotal++;
         board = first[generationTotal - 1];
       } else {
         board = Conway.next(board);
@@ -148,8 +147,8 @@ function stepPartialGeneration({
         color,
         board
       });
-      generationTotal++;
       if (generationTotal <= first.length) {
+        generationTotal++;
         board = first[generationTotal - 1];
       } else {
         board = Conway.next(board);

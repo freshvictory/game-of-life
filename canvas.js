@@ -1,5 +1,5 @@
 export function getOptions(canvas) {
-  const { clientWidth: canvasSize } = canvas;
+  const { width: canvasSize } = canvas;
   const context = canvas.getContext('2d', { alpha: false, antialias: false });
   context.imageSmoothingEnabled = false;
   return {
@@ -9,7 +9,8 @@ export function getOptions(canvas) {
   };
 }
 
-export function clear({ context, canvasSize }) {
+export function clear(canvas) {
+  const { context, canvasSize } = getOptions(canvas);
   context.clearRect(0, 0, canvasSize, canvasSize);
 }
 

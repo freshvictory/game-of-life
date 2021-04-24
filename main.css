@@ -70,4 +70,6 @@ button:active {
   margin: 0 auto;
   background-color: var(--c-background);
   image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  width: 90vmin;
 }
