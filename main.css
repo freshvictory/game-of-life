@@ -1,7 +1,9 @@
 :root {
   --c-border: #cccccc;
-  --c-shadow: #b1b1b1;
-  --c-menu: #e2e2e2;
+  --c-shadow: #666666;
+  --c-background-low: #f4f4f4;
+  --c-background-middle: #e2e2e2;
+  --c-background-high: #777777;
   --c-background: #fefefe;
   --c-text: #222222;
 }
@@ -9,7 +11,9 @@
 @media (prefers-color-scheme: dark) {
   :root {
     --c-background: #000000;
-    --c-menu: #1d1d1d;
+    --c-background-high: #999999;
+    --c-background-middle: #1d1d1d;
+    --c-background-low: #0a0a0a;
     --c-border: #333333;
     --c-text: #eeeeee;
     --c-shadow: #111111;
@@ -35,8 +39,9 @@ button:active {
 
 #controls {
   width: max-content;
-  box-shadow: 2px 2px 16px -4px var(--c-shadow);
-  background-color: var(--c-menu);
+  background-color: var(--c-background-low);
+  box-shadow: 2px 2px 15px -6px var(--c-shadow);
+  border-radius: 1rem;
   width: 100%;
   box-sizing: border-box;
   margin: 1rem auto;
@@ -72,4 +77,24 @@ button:active {
   image-rendering: pixelated;
   image-rendering: crisp-edges;
   width: 90vmin;
+}
+
+input[type="range"] {
+  -webkit-appearance: none;
+  width: 100%;
+  box-sizing: border-box;
+  border-radius: 0.5rem;
+  height: 2rem;
+  background-color: var(--c-background-high);
+  padding: 0.25rem;
+  box-shadow: 1px 1px 3px var(--c-shadow), inset 1px 1px 2px var(--c-shadow);
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  height: 1.5rem;
+  width: 1rem;
+  border-radius: 0.25rem;
+  background-color: var(--c-background-middle);
+  box-shadow: 1px 1px 2px var(--c-shadow);
 }
