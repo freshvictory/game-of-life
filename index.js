@@ -147,7 +147,7 @@ function stepPartialGeneration({
         color,
         board
       });
-      if (generationTotal <= first.length) {
+      if (generationTotal < first.length) {
         generationTotal++;
         board = first[generationTotal - 1];
       } else {
