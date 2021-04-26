@@ -1,11 +1,12 @@
 :root {
-  --c-border: #cccccc;
+  --c-border: var(--c-text);
   --c-shadow: #666666;
   --c-background-low: #f4f4f4;
   --c-background-middle: #e2e2e2;
   --c-background-high: #777777;
   --c-background: #fefefe;
   --c-text: #222222;
+  --c-accent: #8d5fbb;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -14,45 +15,79 @@
     --c-background-high: #999999;
     --c-background-middle: #1d1d1d;
     --c-background-low: #0a0a0a;
-    --c-border: #333333;
-    --c-text: #eeeeee;
+    --c-border: var(--c-text);
+    --c-text: #cccccc;
     --c-shadow: #111111;
   }
 }
+
 html {
   background-color: var(--c-background);
   color: var(--c-text);
+  font-family: sans-serif;
+  font-variant: all-small-caps;
+  letter-spacing: 0.3px;
+  font-size: 16px;
+}
+
+body {
+  font-size: 1.25rem;
+  display: grid;
+  margin: 0;
+}
+
+h1, p, output {
+  margin: 0;
+}
+
+h1 {
+  margin-bottom: 1rem;
+  text-align: left;
+  font-size: 2rem;
+}
+
+main {
+  display: grid;
+  /* flex-wrap: wrap; */
+  grid-template-columns: 1fr auto;
+  column-gap: 2rem;
+  margin: auto;
+}
+
+.sidebar {
+  box-sizing: border-box;
+  margin: 1rem 0;
+  width: 300px;
+  max-height: max-content;
 }
 
 button {
   -webkit-appearance: none;
   -moz-appearance: none;
-  background-color: white;
-  border: 1px solid var(--c-border);
+  background-color: var(--c-background);
+  color: var(--c-text);
+  border: 2px solid var(--c-border);
+  border-radius: 0.5rem;
+  font-variant: inherit;
   padding: 0.5rem 1rem;
-  font-size: 1rem;
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: bold;
+  box-shadow: 0 2px 0 0 var(--c-border);
 }
 
 button:active {
-  color: var(--c-shadow);
+  box-shadow: 0 1px 0 0 var(--c-border);
+  background-color: var(--c-background-low);
 }
 
 #controls {
-  width: max-content;
-  background-color: var(--c-background-low);
-  box-shadow: 2px 2px 15px -6px var(--c-shadow);
-  border-radius: 1rem;
-  width: 100%;
+  max-width: 300px;
   box-sizing: border-box;
-  margin: 1rem auto;
-  padding: 1rem;
+  margin: auto;
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  column-gap: 1rem;
-}
-
-#controls input {
-  display: inline-block;
+  column-gap: 1.5rem;
+  row-gap: 1.5rem;
 }
 
 .actions {
@@ -64,37 +99,161 @@ button:active {
   width: 100%;
 }
 
-.input-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+.actions button:not(:last-child),
+.slider-group:not(:last-child) {
+  margin-bottom: 1rem;
+}
+
+.inputs {
+  margin-top: 1rem;
+}
+
+.slider-group label {
+  font-size: 1rem;
+}
+
+.slider-group output {
+  display: inline-block;
+  font-size: 1.5rem;
+  font-variant: normal;
+  font-weight: bold;
+  line-height: 1;
+}
+
+.slider-row input {
+  display: block;
+}
+
+.color-group {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.color-group label {
+  margin-right: 0.25rem;
+  font-size: 1rem;
+  text-align: right;
+}
+
+.color-group input:first-of-type {
+  display: block;
+  margin-right: 1.5rem;
 }
 
 #canvas {
-  border: 1px solid var(--c-background);
-  display: block;
-  margin: 0 auto;
+  border: 2px solid var(--c-border);
+  border-radius: 0.5rem;
+  margin: 1rem auto;
   background-color: var(--c-background);
   image-rendering: pixelated;
   image-rendering: crisp-edges;
-  width: 90vmin;
+  /* width: 90vmin; */
+  /* height: 90vmin; */
+  box-sizing: border-box;
+  width: 100%;
 }
 
 input[type="range"] {
   -webkit-appearance: none;
+  appearance: none;
   width: 100%;
   box-sizing: border-box;
   border-radius: 0.5rem;
-  height: 2rem;
-  background-color: var(--c-background-high);
-  padding: 0.25rem;
-  box-shadow: 1px 1px 3px var(--c-shadow), inset 1px 1px 2px var(--c-shadow);
+  background-color: var(--c-background);
+  height: 3rem;
+  border: 2px solid var(--c-border);
+  padding: 0.5rem;
+  margin: 0;
+  margin-top: 0.25rem;
 }
 
 input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
-  height: 1.5rem;
-  width: 1rem;
+  appearance: none;
+  height: 1.75rem;
+  width: 3.5rem;
   border-radius: 0.25rem;
-  background-color: var(--c-background-middle);
-  box-shadow: 1px 1px 2px var(--c-shadow);
+  background-color: var(--c-accent);
+  border: 2px solid var(--c-border);
+  box-shadow: 0px 2px 0 0 var(--c-border);
+}
+
+input[type="range"]::-moz-range-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 1.5rem;
+  width: 3.5rem;
+  border-radius: 0.25rem;
+  background-color: var(--c-accent);
+  border: 2px solid var(--c-border);
+  box-shadow: 0px 2px 0 0 var(--c-border);
+}
+
+input[type="color" i] {
+  -webkit-appearance: none;
+  appearance: none;
+  border: 2px solid var(--c-border);
+  background-color: var(--c-background);
+  box-shadow: 0px 2px 0 0 var(--c-border);
+  border-radius: 0.25rem;
+  overflow: hidden;
+  padding: 0;
+}
+
+input[type="color"]::-webkit-color-swatch-wrapper {
+  -webkit-appearance: none;
+  appearance: none;
+  padding: 0;
+}
+
+input[type="color"]::-webkit-color-swatch {
+  -webkit-appearance: none;
+  appearance: none;
+  border: none;
+}
+
+input[type="color"]::-moz-color-swatch {
+  appearance: none;
+  border: none;
+}
+
+/* This was cool, but Chrome has a bug with calc
+ * and different units in media queries.
+ */
+/* @media screen and (max-width: calc(90vmin + 300px + 3rem + 1px)) {
+  .sidebar {
+    width: 100%;
+    margin: 0 1rem 2rem;
+  }
+
+  h1 {
+    text-align: center;
+  }
+} */
+
+@media screen and (max-width: 1200px) {
+  main {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    width: 100%;
+    margin: 0 auto 2rem auto;
+  }
+
+  #canvas {
+    margin: 0 auto;
+  }
+
+  h1 {
+    text-align: center;
+  }
+}
+
+@media screen and (max-width: 500px) {
+  #controls {
+    max-width: 100%;
+    padding: 1rem;
+  }
 }
