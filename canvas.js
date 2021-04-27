@@ -15,7 +15,7 @@ export function clear(canvas) {
 }
 
 
-export function draw({ canvasOptions, cellSize, color, board }) {
+export function draw({ canvasOptions, previewOptions, previewCoordinates, cellSize, color, board }) {
   const imageData = canvasOptions.imageData;
   for (let y = 0; y < board.size; y++) {
     for (let x = 0; x < board.size; x++) {
@@ -37,4 +37,27 @@ export function draw({ canvasOptions, cellSize, color, board }) {
     }
   }
   canvasOptions.context.putImageData(imageData, 0, 0);
+  if (previewCoordinates.x) {
+    const previewX = previewCoordinates.x - (previewOptions.canvasSize / 2);
+    const previewY = previewCoordinates.y - (previewOptions.canvasSize / 2);
+    const previewWidth = previewOptions.canvasSize;
+    canvasOptions.context.strokeRect(
+      previewX - 1,
+      previewY - 1,
+      previewWidth + 2,
+      previewWidth + 2
+    );
+    const previewImageData = previewOptions.imageData;
+    for (let y = 0; y < previewWidth; y++) {
+      for (let x = 0; x < previewWidth; x++) {
+        const previewIndex = (x + y * previewWidth) * 4;
+        const fullIndex = (x + previewX + (y + previewY) * canvasOptions.canvasSize) * 4;
+        previewImageData.data[previewIndex] = imageData.data[fullIndex];
+        previewImageData.data[previewIndex + 1] = imageData.data[fullIndex + 1];
+        previewImageData.data[previewIndex + 2] = imageData.data[fullIndex + 2];
+        previewImageData.data[previewIndex + 3] = imageData.data[fullIndex + 3];
+      }
+    }
+    previewOptions.context.putImageData(previewImageData, 0, 0);
+  }
 }

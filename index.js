@@ -3,11 +3,12 @@ import * as Conway from './Conway.js';
 
 
 let animator = -1;
-export function run({ canvas, cellSize, speed, color, probability }) {
+export function run({ canvas, previewCanvas, cellSize, speed, color, probability }) {
   cancelAnimationFrame(animator);
   setTimeout(function () {
     runInternal({
       canvas,
+      previewCanvas,
       color,
       cellSize,
       speed,
@@ -24,15 +25,45 @@ export function stop(canvas) {
 }
 
 
-function runInternal({ canvas, cellSize, color, initialBoard, speed, probability }) {
+let previewCoordinates = {};
+export function preview(canvas, previewCanvas) {
+  const min = previewCanvas.width / 2;
+  const max = canvas.width - (previewCanvas.width / 2);
+  function mouseMove(evt) {
+    previewCoordinates = {
+      x: Math.min(Math.max(evt.layerX, min), max),
+      y: Math.min(Math.max(evt.layerY, min), max)
+    };
+  };
+
+  function mouseLeave() {
+    delete previewCoordinates.x;
+    previewCanvas.getContext('2d').clearRect(0, 0, previewCanvas.width, previewCanvas.width);
+    document.body.classList.remove('previewing');
+  };
+
+  function mouseEnter() {
+    document.body.classList.add('previewing');
+  }
+
+  canvas.addEventListener('mouseenter', mouseEnter);
+  canvas.addEventListener('mousemove', mouseMove);
+  canvas.addEventListener('mouseleave', mouseLeave);
+}
+
+
+function runInternal({ canvas, previewCanvas, cellSize, color, initialBoard, speed, probability }) {
   const canvasOptions = Canvas.getOptions(canvas);
+  const previewOptions = Canvas.getOptions(previewCanvas);
   const size = canvasOptions.canvasSize / cellSize;
   Canvas.clear(canvas);
+  Canvas.clear(previewCanvas);
   initialBoard = initialBoard || Conway.random(size, probability);
   let board = Conway.fromBoard(initialBoard, size);
   setTimeout(function () {
     prepRun({
       canvasOptions,
+      previewOptions,
       cellSize,
       color,
       board,
@@ -42,7 +73,7 @@ function runInternal({ canvas, cellSize, color, initialBoard, speed, probability
 }
 
 
-function prepRun({ canvasOptions, cellSize, color, board, speed }) {
+function prepRun({ canvasOptions, previewOptions, cellSize, color, board, speed }) {
   let first = precomputeBoard(board, 10);
   let frameFunction =
     speed > 1 ? stepMultiGeneration
@@ -50,6 +81,7 @@ function prepRun({ canvasOptions, cellSize, color, board, speed }) {
         : stepOnePerFrame;
   let runFrame = frameFunction({
     canvasOptions,
+    previewOptions,
     board,
     cellSize,
     color,
@@ -78,6 +110,7 @@ function precomputeBoard(board, n) {
 
 function stepOnePerFrame({
   canvasOptions,
+  previewOptions,
   board,
   cellSize,
   color,
@@ -87,6 +120,8 @@ function stepOnePerFrame({
   return function () {
     Canvas.draw({
       canvasOptions,
+      previewOptions,
+      previewCoordinates,
       cellSize,
       color,
       board
@@ -103,6 +138,7 @@ function stepOnePerFrame({
 
 function stepMultiGeneration({
   canvasOptions,
+  previewOptions,
   board,
   cellSize,
   color,
@@ -113,6 +149,8 @@ function stepMultiGeneration({
   return function () {
     Canvas.draw({
       canvasOptions,
+      previewOptions,
+      previewCoordinates,
       cellSize,
       color,
       board
@@ -130,6 +168,7 @@ function stepMultiGeneration({
 
 function stepPartialGeneration({
   canvasOptions,
+  previewOptions,
   board,
   cellSize,
   color,
@@ -143,6 +182,8 @@ function stepPartialGeneration({
     if (speedTimer < 1) {
       Canvas.draw({
         canvasOptions,
+        previewOptions,
+        previewCoordinates,
         cellSize,
         color,
         board

@@ -42,10 +42,11 @@
           </div>
         </div>
       </form>
+      <canvas id="preview" width="100" height="100"></canvas>
     </div>
   </main>
   <script type="module">
-    import { run, stop } from './index.js';
+    import { run, stop, preview } from './index.js';
 
     const speeds = [0.1, 0.25, 0.33, 0.5, 1, 2, 3];
     const cellSizes = [1, 2, 4, 5, 8, 10, 20, 25];
@@ -62,9 +63,11 @@
     const backgroundColorPicker = document.getElementById('background-color-picker');
     const stopButton = document.getElementById('stop-button');
     const canvas = document.getElementById('canvas');
+    const previewCanvas = document.getElementById('preview');
     stopButton.addEventListener('click', function () {
       stop(canvas);
     });
+    preview(canvas, previewCanvas);
     controlForm.addEventListener('submit', function (event) {
       event.preventDefault();
       const cellSize = parseInt(cellSizeSlider.value, 10);
@@ -76,8 +79,10 @@
         parseInt(cellColorPicker.value.substring(5, 7), 16)
       ];
       canvas.style.setProperty('--c-background', backgroundColorPicker.value);
+      previewCanvas.style.setProperty('--c-background', backgroundColorPicker.value);
       run({
         canvas,
+        previewCanvas,
         cellSize: cellSizes[cellSize],
         speed: speeds[speed],
         probability: probabilities[probability],
