@@ -6,111 +6,122 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Conway's Game of Life</title>
   <link rel="stylesheet" href="main.css">
+  <script src="util.js"></script>
 </head>
 
 <body>
   <main>
     <canvas id="canvas" width="800" height="800"></canvas>
+
     <div class="sidebar">
       <h1>Conway's Game of Life</h1>
+
       <form id="controls">
+
         <div class="actions">
           <button id="run-button" type="submit">Run</button>
           <button id="stop-button" type="button">Clear</button>
         </div>
+
         <div class="inputs">
+
           <div class="slider-group">
             <output id="cell-size-slider-value"></output>
             <label for="cell-size-slider">Cell Width</label>
             <input type="range" name="cell-size" id="cell-size-slider" value="1" step="1" min="0" max="7">
           </div>
+
           <div class="slider-group">
             <output id="speed-slider-value"></output>
             <label for="speed-slider">Speed</label>
             <input type="range" name="speed" id="speed-slider" value="4" step="1" min="0" max="6">
           </div>
+
           <div class="slider-group">
             <output id="probability-slider-value"></output>
             <label for="probability-slider">Probability</label>
             <input type="range" name="probability" id="probability-slider" value="4" step="1" min="0" max="7">
           </div>
+
           <div class="color-group">
             <label for="cell-color-picker">Cell</label>
             <input type="color" value="#8d5fbb" id="cell-color-picker">
             <label for="background-color-picker">Background</label>
             <input type="color" value="#FFFFFF" id="background-color-picker">
           </div>
+
         </div>
+
       </form>
+
       <canvas id="preview" width="100" height="100"></canvas>
+
     </div>
   </main>
+  <script>
+    const ELEMENT_OPTIONS = {
+      controls: 'controls',
+      cellSize: {
+        type: 'slider',
+        base: 'cell-size',
+        values: [1, 2, 4, 5, 8, 10, 20, 25]
+      },
+      speed: {
+        type: 'slider',
+        base: 'speed',
+        values: [0.1, 0.25, 0.33, 0.5, 1, 2, 3]
+      },
+      probability: {
+        type: 'slider',
+        base: 'probability',
+        values: [0.05, 0.1, 0.2, 0.3, 0.5, 0.7, 0.8, 0.9]
+      },
+      cellColor: {
+        type: 'color',
+        id: 'cell-color-picker'
+      },
+      backgroundColor: {
+        type: 'color',
+        id: 'background-color-picker'
+      },
+      stop: 'stop-button',
+      run: 'run-button',
+      canvas: 'canvas',
+      previewCanvas: 'preview'
+    };
+
+    const ELEMENTS = buildElements(ELEMENT_OPTIONS);
+
+    if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      ELEMENTS.backgroundColor.value = '#000000';
+    }
+
+    on('input', function () {
+      setColor('accent', ELEMENTS.cellColor.value().hex);
+    }, ELEMENTS.cellColor.picker);
+  </script>
   <script type="module">
     import { run, stop, preview } from './index.js';
 
-    const speeds = [0.1, 0.25, 0.33, 0.5, 1, 2, 3];
-    const cellSizes = [1, 2, 4, 5, 8, 10, 20, 25];
-    const probabilities = [0.05, 0.1, 0.2, 0.3, 0.5, 0.7, 0.8, 0.9];
+    on('click', function () {
+      stop(ELEMENTS.canvas);
+    }, ELEMENTS.stop);
 
-    const controlForm = document.getElementById('controls');
-    const cellSizeSlider = document.getElementById('cell-size-slider');
-    const cellSizeValue = document.getElementById('cell-size-slider-value');
-    const speedSlider = document.getElementById('speed-slider');
-    const speedValue = document.getElementById('speed-slider-value');
-    const probabilitySlider = document.getElementById('probability-slider');
-    const probabilityValue = document.getElementById('probability-slider-value');
-    const cellColorPicker = document.getElementById('cell-color-picker');
-    const backgroundColorPicker = document.getElementById('background-color-picker');
-    const stopButton = document.getElementById('stop-button');
-    const canvas = document.getElementById('canvas');
-    const previewCanvas = document.getElementById('preview');
-    stopButton.addEventListener('click', function () {
-      stop(canvas);
-    });
-    preview(canvas, previewCanvas);
-    controlForm.addEventListener('submit', function (event) {
+    preview(ELEMENTS.canvas, ELEMENTS.previewCanvas);
+
+    on('submit', function (event) {
       event.preventDefault();
-      const cellSize = parseInt(cellSizeSlider.value, 10);
-      const speed = parseInt(speedSlider.value, 10);
-      const probability = parseInt(probabilitySlider.value, 10);
-      const rgb = [
-        parseInt(cellColorPicker.value.substring(1, 3), 16),
-        parseInt(cellColorPicker.value.substring(3, 5), 16),
-        parseInt(cellColorPicker.value.substring(5, 7), 16)
-      ];
-      canvas.style.setProperty('--c-background', backgroundColorPicker.value);
-      previewCanvas.style.setProperty('--c-background', backgroundColorPicker.value);
+      setColor('background', ELEMENTS.backgroundColor.value().hex, ELEMENTS.canvas);
+      setColor('background', ELEMENTS.backgroundColor.value().hex, ELEMENTS.previewCanvas);
       run({
-        canvas,
-        previewCanvas,
-        cellSize: cellSizes[cellSize],
-        speed: speeds[speed],
-        probability: probabilities[probability],
-        color: rgb
+        canvas: ELEMENTS.canvas,
+        previewCanvas: ELEMENTS.previewCanvas,
+        cellSize: ELEMENTS.cellSize.value(),
+        speed: ELEMENTS.speed.value(),
+        probability: ELEMENTS.probability.value(),
+        color: ELEMENTS.cellColor.value().rgb
       });
-    });
-    function updateCellSizeValue() {
-      cellSizeValue.innerHTML = cellSizes[cellSizeSlider.value];
-    }
-    function updateSpeedValue() {
-      speedValue.innerHTML = speeds[speedSlider.value];
-    }
-    function updateProbabilityValue() {
-      probabilityValue.innerHTML = probabilities[probabilitySlider.value];
-    }
-    function updateCellColor() {
-      document.body.style.setProperty('--c-accent', cellColorPicker.value);
-    }
-    cellSizeSlider.addEventListener('input', updateCellSizeValue);
-    speedSlider.addEventListener('input', updateSpeedValue);
-    probabilitySlider.addEventListener('input', updateProbabilityValue);
-    cellColorPicker.addEventListener('input', updateCellColor);
-    updateCellSizeValue();
-    updateSpeedValue();
-    updateProbabilityValue();
-    if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      backgroundColorPicker.value = '#000000';
-    }
+    }, ELEMENTS.controls);
   </script>
 </body>
 
