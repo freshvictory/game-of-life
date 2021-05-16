@@ -91,22 +91,15 @@ button:active {
   row-gap: 1.5rem;
 }
 
-.actions {
-  display: flex;
-  flex-direction: column;
+.actions,
+.inputs {
+  display: grid;
+  grid-row-gap: 1rem;
+  grid-column-gap: 1rem;
 }
 
 .actions button {
   width: 100%;
-}
-
-.actions button:not(:last-child),
-.slider-group:not(:last-child) {
-  margin-bottom: 1rem;
-}
-
-.inputs {
-  margin-top: 1rem;
 }
 
 .slider-group label {
@@ -158,7 +151,7 @@ button:active {
 #preview {
   opacity: 0;
   pointer-events: none;
-  transform: translateY(-125%);
+  transform: translateY(-122%);
   transition: opacity 300ms;
   max-width: 300px;
   margin: auto;
@@ -263,11 +256,26 @@ input[type="color"]::-moz-color-swatch {
   h1 {
     text-align: center;
   }
-}
 
-@media screen and (max-width: 500px) {
   #controls {
     max-width: 100%;
-    padding: 1rem;
+    grid-row-gap: 1rem;
+    padding: 0 1rem;
+  }
+
+  .actions,
+  .inputs {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  #preview {
+    transform: translateY(-95%);
+  }
+}
+
+@media screen and (max-width: 550px) {
+  .actions,
+  .inputs {
+    grid-template-columns: 1fr;
   }
 }
