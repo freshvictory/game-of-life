@@ -1,5 +1,7 @@
-import * as Canvas from './canvas.js';
-import * as Conway from './Conway.js';
+// import * as Canvas from './canvas.js';
+import * as Canvas from './canvas3.js';
+// import * as Conway from './conway.js';
+import * as Conway from './conway3.js';
 
 
 let animator = -1;
@@ -54,10 +56,12 @@ export function preview(canvas, previewCanvas) {
 
 function runInternal({ canvas, previewCanvas, cellSize, color, initialBoard, speed, probability }) {
   const canvasOptions = Canvas.getOptions(canvas);
-  const previewOptions = Canvas.getOptions(previewCanvas);
+  const previewOptions = previewCanvas ? Canvas.getOptions(previewCanvas) : null;
   const size = canvasOptions.canvasSize / cellSize;
   Canvas.clear(canvas);
-  Canvas.clear(previewCanvas);
+  if (previewCanvas) {
+    Canvas.clear(previewCanvas);
+  }
   initialBoard = initialBoard || Conway.random(size, probability);
   let board = Conway.fromBoard(initialBoard, size);
   setTimeout(function () {

@@ -28,7 +28,7 @@
           <div class="slider-group">
             <output id="cell-size-slider-value"></output>
             <label for="cell-size-slider">Cell Width</label>
-            <input type="range" name="cell-size" id="cell-size-slider" value="1" step="1" min="0" max="7">
+            <input type="range" name="cell-size" id="cell-size-slider" value="7" step="1" min="0" max="7">
           </div>
 
           <div class="slider-group">
@@ -107,7 +107,7 @@
       stop(ELEMENTS.canvas);
     }, ELEMENTS.stop);
 
-    preview(ELEMENTS.canvas, ELEMENTS.previewCanvas);
+    // preview(ELEMENTS.canvas, ELEMENTS.previewCanvas);
 
     on('submit', function (event) {
       event.preventDefault();
@@ -115,7 +115,7 @@
       setColor('background', ELEMENTS.backgroundColor.value().hex, ELEMENTS.previewCanvas);
       run({
         canvas: ELEMENTS.canvas,
-        previewCanvas: ELEMENTS.previewCanvas,
+        // previewCanvas: ELEMENTS.previewCanvas,
         cellSize: ELEMENTS.cellSize.value(),
         speed: ELEMENTS.speed.value(),
         probability: ELEMENTS.probability.value(),

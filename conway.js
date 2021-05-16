@@ -10,11 +10,6 @@ export function random(size, probability) {
 }
 
 
-export function randomBoard(size) {
-  return fromBoard(random(size), size);
-}
-
-
 export function fromBoard(board, size) {
   const buffer = new ArrayBuffer(size * size);
   const array = new Uint8Array(buffer);
