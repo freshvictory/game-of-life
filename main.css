@@ -140,7 +140,6 @@ button:active {
   display: block;
   border: 2px solid var(--c-border);
   border-radius: 0.5rem;
-  margin: 1rem auto;
   background-color: var(--c-background);
   image-rendering: pixelated;
   image-rendering: crisp-edges;
@@ -148,17 +147,14 @@ button:active {
   width: 100%;
 }
 
-#preview {
-  opacity: 0;
-  pointer-events: none;
-  transform: translateY(-122%);
-  transition: opacity 300ms;
-  max-width: 300px;
-  margin: auto;
+#canvas {
+  margin: 3rem auto;
 }
 
-.previewing #preview {
-  opacity: 1;
+#preview {
+  pointer-events: none;
+  max-width: 300px;
+  margin: auto;
 }
 
 input[type="range"] {
@@ -269,7 +265,7 @@ input[type="color"]::-moz-color-swatch {
   }
 
   #preview {
-    transform: translateY(-95%);
+    display: none;
   }
 }
 
