@@ -19,8 +19,7 @@ onmessage = function ({ data }) {
       postMessage({
         response: 'next',
         size: board.size,
-        buffer: board.buffer,
-        board: board.board
+        buffer: board.buffer
       }, [
         board.buffer
       ]);
@@ -37,8 +36,7 @@ function randomBoard(params) {
 function nextBoard(params) {
   let board = {
     buffer: params.buffer,
-    size: params.size,
-    board: params.board
+    size: params.size
   };
   for (let i = 0; i < params.generations; i++) {
     board = next(board);

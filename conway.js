@@ -23,7 +23,6 @@ function fromBoard(board, size) {
     }
   }
   return {
-    board: array,
     buffer,
     size
   };
@@ -69,11 +68,12 @@ const changed = [
 // http://www.jagregory.com/abrash-black-book/#chapter-17-the-game-of-life
 function next(options) {
   const newBuffer = options.buffer.slice(0);
+  const oldBoard = new Uint8Array(options.buffer);
   const newBoard = new Uint8Array(newBuffer);
   for (let y = 0; y < options.size; y++) {
     for (let x = 0; x < options.size; x++) {
       const index = x + y * options.size;
-      const cell = options.board[index];
+      const cell = oldBoard[index];
       if (changed[cell]) {
         newBoard[index] = newBoard[index] + changed[cell];
         setNeighbors(newBoard, options.size, x, y, index, changed[cell] * 2);
@@ -81,7 +81,6 @@ function next(options) {
     }
   }
   return {
-    board: newBoard,
     buffer: newBuffer,
     size: options.size
   };

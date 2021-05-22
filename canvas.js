@@ -17,11 +17,12 @@ export function clear(canvas) {
 
 export function draw({ canvasOptions, previewOptions, previewCoordinates, cellSize, color, board }) {
   const imageData = canvasOptions.imageData;
+  const boardArray = new Uint8Array(board.buffer);
   for (let y = 0; y < board.size; y++) {
     for (let x = 0; x < board.size; x++) {
       const index = x + y * board.size;
       const dataOffset = (x * cellSize + y * cellSize * canvasOptions.canvasSize) * 4;
-      const cell = board.board[index] & 1;
+      const cell = boardArray[index] & 1;
       const oldCell = imageData.data[dataOffset + 3];
       if (oldCell !== cell * 255) {
         for (let j = 0; j < cellSize; j++) {
