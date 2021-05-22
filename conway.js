@@ -47,6 +47,27 @@ export function printBoard({ board, size }) {
   return str.join('');
 }
 
+const changed = [
+  0,  // Dead, no neighbors
+  -1, // Alive, no neighbors -- dies
+  0,  // Dead, one neighbor
+  -1, // Alive, one neighbor -- dies
+  0,  // Dead, two neighbors
+  0,  // Alive, two neighbors
+  1,  // Dead, three neighbors -- born
+  0,  // Alive, three neighbors
+  0,  // Dead, four neighbors
+  -1,
+  0,
+  -1,
+  0,
+  -1,
+  0,
+  -1,
+  0,
+  -1
+];
+
 
 // Byte-based implementation adapted from
 // http://www.jagregory.com/abrash-black-book/#chapter-17-the-game-of-life
@@ -57,15 +78,9 @@ export function next(options) {
     for (let x = 0; x < options.size; x++) {
       const index = x + y * options.size;
       const cell = options.board[index];
-      if (cell !== 0) {
-        const aliveNow = cell & 1;
-        const neighbors = (cell & 30) >> 1;
-        const isAliveNext = neighbors === 3 || (!!aliveNow && neighbors === 2);
-        const aliveNext = isAliveNext ? 1 : 0;
-        newBoard[index] = (newBoard[index] & 30) + aliveNext;
-        if (aliveNext !== aliveNow) {
-          setNeighbors(newBoard, options.size, x, y, index, isAliveNext ? 2 : -2);
-        }
+      if (changed[cell]) {
+        newBoard[index] = newBoard[index] + changed[cell];
+        setNeighbors(newBoard, options.size, x, y, index, changed[cell] * 2);
       }
     }
   }
