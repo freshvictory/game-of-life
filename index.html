@@ -47,7 +47,7 @@
             <label for="cell-color-picker">Cell</label>
             <input type="color" value="#8d5fbb" id="cell-color-picker">
             <label for="background-color-picker">Background</label>
-            <input type="color" value="#FFFFFF" id="background-color-picker">
+            <input type="color" id="background-color-picker">
           </div>
 
         </div>
@@ -93,7 +93,9 @@
     const ELEMENTS = buildElements(ELEMENT_OPTIONS);
 
     if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      ELEMENTS.backgroundColor.value = '#000000';
+      ELEMENTS.backgroundColor.picker.value = '#000000';
+    } else {
+      ELEMENTS.backgroundColor.picker.value = '#ffffff';
     }
 
     on('input', function () {
