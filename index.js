@@ -1,9 +1,11 @@
 import * as Canvas from './canvas.js';
-import * as Conway from './Conway.js';
 
+
+let worker = new Worker('./worker.js');
 
 let animator = -1;
 export function run({ canvas, previewCanvas, cellSize, speed, color, probability }) {
+  worker = new Worker('./worker.js');
   cancelAnimationFrame(animator);
   setTimeout(function () {
     runInternal({
@@ -12,14 +14,14 @@ export function run({ canvas, previewCanvas, cellSize, speed, color, probability
       color,
       cellSize,
       speed,
-      probability,
-      initialBoard: undefined
+      probability
     });
   }, 0);
 }
 
 
 export function stop(canvas) {
+  worker.terminate();
   cancelAnimationFrame(animator);
   Canvas.clear(canvas);
 }
@@ -52,29 +54,33 @@ export function preview(canvas, previewCanvas) {
 }
 
 
-function runInternal({ canvas, previewCanvas, cellSize, color, initialBoard, speed, probability }) {
+function runInternal({ canvas, previewCanvas, cellSize, color, speed, probability }) {
   const canvasOptions = Canvas.getOptions(canvas);
   const previewOptions = Canvas.getOptions(previewCanvas);
   const size = canvasOptions.canvasSize / cellSize;
   Canvas.clear(canvas);
   Canvas.clear(previewCanvas);
-  initialBoard = initialBoard || Conway.random(size, probability);
-  let board = Conway.fromBoard(initialBoard, size);
-  setTimeout(function () {
+  worker.postMessage({
+    request: 'random',
+    params: {
+      size,
+      probability
+    }
+  });
+  worker.onmessage = function ({ data }) {
     prepRun({
       canvasOptions,
       previewOptions,
       cellSize,
       color,
-      board,
+      board: data.board,
       speed
     });
-  });
+  };
 }
 
 
 function prepRun({ canvasOptions, previewOptions, cellSize, color, board, speed }) {
-  let first = precomputeBoard(board, 10);
   let frameFunction =
     speed > 1 ? stepMultiGeneration
       : speed < 1 ? stepPartialGeneration
@@ -82,42 +88,33 @@ function prepRun({ canvasOptions, previewOptions, cellSize, color, board, speed 
   let runFrame = frameFunction({
     canvasOptions,
     previewOptions,
-    board,
     cellSize,
     color,
-    first,
     speed
   });
+  worker.onmessage = function ({ data }) {
+    board = {
+      board: data.board,
+      buffer: data.buffer,
+      size: data.size
+    };
+  };
   function step() {
-    runFrame();
+    runFrame(board);
     animator = requestAnimationFrame(step);
   };
   animator = requestAnimationFrame(step);
 }
 
 
-function precomputeBoard(board, n) {
-  // Precompute the first few boards, since those
-  // usually have the most change
-  let first = new Array(n);
-  first[0] = Conway.next(board);
-  for (let i = 1; i < first.length; i++) {
-    first[i] = Conway.next(first[i - 1]);
-  }
-  return first;
-}
-
-
 function stepOnePerFrame({
   canvasOptions,
   previewOptions,
-  board,
   cellSize,
-  color,
-  first
+  color
 }) {
-  let generationTotal = 0;
-  return function () {
+  return function (board) {
+    if (!board.buffer.byteLength) { return; }
     Canvas.draw({
       canvasOptions,
       previewOptions,
@@ -126,12 +123,17 @@ function stepOnePerFrame({
       color,
       board
     });
-    if (generationTotal < first.length) {
-      generationTotal++;
-      board = first[generationTotal - 1];
-    } else {
-      board = Conway.next(board);
-    }
+    worker.postMessage({
+      request: 'next',
+      params: {
+        board: board.board,
+        size: board.size,
+        buffer: board.buffer,
+        generations: 1
+      }
+    }, [
+      board.buffer
+    ]);
   };
 }
 
@@ -139,14 +141,12 @@ function stepOnePerFrame({
 function stepMultiGeneration({
   canvasOptions,
   previewOptions,
-  board,
   cellSize,
   color,
-  first,
   speed
 }) {
-  let generationTotal = 0;
-  return function () {
+  return function (board) {
+    if (!board.buffer.byteLength) { return; }
     Canvas.draw({
       canvasOptions,
       previewOptions,
@@ -155,45 +155,51 @@ function stepMultiGeneration({
       color,
       board
     });
-    for (let i = 0; i < speed; i++) {
-      if (generationTotal < first.length) {
-        generationTotal++;
-        board = first[generationTotal - 1];
-      } else {
-        board = Conway.next(board);
+    worker.postMessage({
+      request: 'next',
+      params: {
+        board: board.board,
+        size: board.size,
+        buffer: board.buffer,
+        generations: speed
       }
-    }
+    }, [
+      board.buffer
+    ]);
   };
 }
 
 function stepPartialGeneration({
   canvasOptions,
   previewOptions,
-  board,
   cellSize,
   color,
-  first,
   speed
 }) {
-  let generationTotal = 0;
   speed = Math.round(1 / speed);
   let speedTimer = speed;
-  return function () {
+  return function (board) {
+    if (!board.buffer.byteLength) { return; }
+    Canvas.draw({
+      canvasOptions,
+      previewOptions,
+      previewCoordinates,
+      cellSize,
+      color,
+      board
+    });
     if (speedTimer < 1) {
-      Canvas.draw({
-        canvasOptions,
-        previewOptions,
-        previewCoordinates,
-        cellSize,
-        color,
-        board
-      });
-      if (generationTotal < first.length) {
-        generationTotal++;
-        board = first[generationTotal - 1];
-      } else {
-        board = Conway.next(board);
-      }
+      worker.postMessage({
+        request: 'next',
+        params: {
+          board: board.board,
+          size: board.size,
+          buffer: board.buffer,
+          generations: 1
+        }
+      }, [
+        board.buffer
+      ]);
       speedTimer = speed;
     }
     speedTimer--;

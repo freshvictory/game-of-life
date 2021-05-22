@@ -1,4 +1,4 @@
-export function random(size, probability) {
+function random(size, probability) {
   const board = new Array(size);
   for (let i = 0; i < size; i++) {
     board[i] = new Array(size);
@@ -10,12 +10,7 @@ export function random(size, probability) {
 }
 
 
-export function randomBoard(size) {
-  return fromBoard(random(size), size);
-}
-
-
-export function fromBoard(board, size) {
+function fromBoard(board, size) {
   const buffer = new ArrayBuffer(size * size);
   const array = new Uint8Array(buffer);
   for (let y = 0; y < board.length; y++) {
@@ -29,12 +24,13 @@ export function fromBoard(board, size) {
   }
   return {
     board: array,
+    buffer,
     size
   };
 }
 
 
-export function printBoard({ board, size }) {
+function printBoard({ board, size }) {
   let str = [];
   for (let y = 0; y < size; y++) {
     for (let x = 0; x < size; x++) {
@@ -71,8 +67,8 @@ const changed = [
 
 // Byte-based implementation adapted from
 // http://www.jagregory.com/abrash-black-book/#chapter-17-the-game-of-life
-export function next(options) {
-  const newBuffer = options.board.buffer.slice(0);
+function next(options) {
+  const newBuffer = options.buffer.slice(0);
   const newBoard = new Uint8Array(newBuffer);
   for (let y = 0; y < options.size; y++) {
     for (let x = 0; x < options.size; x++) {
@@ -86,6 +82,7 @@ export function next(options) {
   }
   return {
     board: newBoard,
+    buffer: newBuffer,
     size: options.size
   };
 }
