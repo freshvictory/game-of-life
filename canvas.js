@@ -1,6 +1,6 @@
 export function getOptions(canvas) {
   const { width: canvasSize } = canvas;
-  const context = canvas.getContext('2d', { alpha: false, antialias: false });
+  const context = canvas.getContext('2d', { antialias: false });
   context.imageSmoothingEnabled = false;
   return {
     canvasSize,
