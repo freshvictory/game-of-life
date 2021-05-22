@@ -114,14 +114,7 @@ function stepOnePerFrame({
 }) {
   return function (board) {
     if (!board.buffer.byteLength) { return; }
-    Canvas.draw({
-      canvasOptions,
-      previewOptions,
-      previewCoordinates,
-      cellSize,
-      color,
-      board
-    });
+    const canvasBuf = board.buffer.slice(0);
     worker.postMessage({
       request: 'next',
       params: {
@@ -132,6 +125,17 @@ function stepOnePerFrame({
     }, [
       board.buffer
     ]);
+    Canvas.draw({
+      canvasOptions,
+      previewOptions,
+      previewCoordinates,
+      cellSize,
+      color,
+      board: {
+        buffer: canvasBuf,
+        size: board.size
+      }
+    });
   };
 }
 
@@ -145,14 +149,7 @@ function stepMultiGeneration({
 }) {
   return function (board) {
     if (!board.buffer.byteLength) { return; }
-    Canvas.draw({
-      canvasOptions,
-      previewOptions,
-      previewCoordinates,
-      cellSize,
-      color,
-      board
-    });
+    const canvasBuf = board.buffer.slice(0);
     worker.postMessage({
       request: 'next',
       params: {
@@ -163,6 +160,17 @@ function stepMultiGeneration({
     }, [
       board.buffer
     ]);
+    Canvas.draw({
+      canvasOptions,
+      previewOptions,
+      previewCoordinates,
+      cellSize,
+      color,
+      board: {
+        buffer: canvasBuf,
+        size: board.size
+      }
+    });
   };
 }
 
@@ -177,14 +185,7 @@ function stepPartialGeneration({
   let speedTimer = speed;
   return function (board) {
     if (!board.buffer.byteLength) { return; }
-    Canvas.draw({
-      canvasOptions,
-      previewOptions,
-      previewCoordinates,
-      cellSize,
-      color,
-      board
-    });
+    const canvasBuf = board.buffer.slice(0);
     if (speedTimer < 1) {
       worker.postMessage({
         request: 'next',
@@ -198,6 +199,17 @@ function stepPartialGeneration({
       ]);
       speedTimer = speed;
     }
+    Canvas.draw({
+      canvasOptions,
+      previewOptions,
+      previewCoordinates,
+      cellSize,
+      color,
+      board: {
+        buffer: canvasBuf,
+        size: board.size
+      }
+    });
     speedTimer--;
   };
 }
