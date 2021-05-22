@@ -103,11 +103,13 @@
     }, ELEMENTS.cellColor.picker);
   </script>
   <script type="module">
-    import { run, stop, preview } from './index.js';
+    import { run, stop, preview, test } from './index.js';
 
     on('click', function () {
       stop(ELEMENTS.canvas);
     }, ELEMENTS.stop);
+
+    window.test = test;
 
     preview(ELEMENTS.canvas, ELEMENTS.previewCanvas);
 

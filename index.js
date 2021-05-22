@@ -27,6 +27,14 @@ export function stop(canvas) {
 }
 
 
+export function test() {
+  worker = new Worker('./worker.js');
+  worker.postMessage({
+    request: 'test'
+  });
+}
+
+
 let previewCoordinates = {};
 export function preview(canvas, previewCanvas) {
   const min = previewCanvas.width / 2;
