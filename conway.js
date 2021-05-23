@@ -64,19 +64,46 @@ const changed = [
 ];
 
 
+function directions(size) {
+  return {
+    left0: size - 1,
+    left: -1,
+    right0: 1 - size,
+    right: 1,
+    top0: size * (size - 1),
+    top: -size,
+    bottom0: size * (1 - size),
+    bottom: size
+  };
+}
+
+
 // Byte-based implementation adapted from
 // http://www.jagregory.com/abrash-black-book/#chapter-17-the-game-of-life
 function next(options) {
   const newBuffer = options.buffer.slice(0);
   const oldBoard = new Uint8Array(options.buffer);
   const newBoard = new Uint8Array(newBuffer);
+  const d = directions(options.size);
   for (let y = 0; y < options.size; y++) {
     for (let x = 0; x < options.size; x++) {
       const index = x + y * options.size;
       const cell = oldBoard[index];
       if (changed[cell]) {
-        newBoard[index] = newBoard[index] + changed[cell];
-        setNeighbors(newBoard, options.size, x, y, index, changed[cell] * 2);
+        newBoard[index] += changed[cell];
+        const left = x === 0 ? d.left0 : d.left;
+        const right = x === options.size - 1 ? d.right0 : d.right;
+        const top = y === 0 ? d.top0 : d.top;
+        const bottom = y === options.size - 1 ? d.bottom0 : d.bottom;
+        const change = changed[cell] * 2;
+        newBoard[index + top + left] += change;
+        newBoard[index + top] += change;
+        newBoard[index + top + right] += change;
+        newBoard[index + left] += change;
+        newBoard[index + right] += change;
+        newBoard[index + bottom + left] += change;
+        newBoard[index + bottom] += change;
+        newBoard[index + bottom + right] += change;
       }
     }
   }

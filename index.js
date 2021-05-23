@@ -101,10 +101,7 @@ function prepRun({ canvasOptions, previewOptions, cellSize, color, board, speed 
     speed
   });
   worker.onmessage = function ({ data }) {
-    board = {
-      buffer: data.buffer,
-      size: data.size
-    };
+    board = data.board;
   };
   function step() {
     runFrame(board);
@@ -126,8 +123,7 @@ function stepOnePerFrame({
     worker.postMessage({
       request: 'next',
       params: {
-        size: board.size,
-        buffer: board.buffer,
+        board,
         generations: 1
       }
     }, [
@@ -161,8 +157,7 @@ function stepMultiGeneration({
     worker.postMessage({
       request: 'next',
       params: {
-        size: board.size,
-        buffer: board.buffer,
+        board,
         generations: speed
       }
     }, [
@@ -198,8 +193,7 @@ function stepPartialGeneration({
       worker.postMessage({
         request: 'next',
         params: {
-          size: board.size,
-          buffer: board.buffer,
+          board,
           generations: 1
         }
       }, [

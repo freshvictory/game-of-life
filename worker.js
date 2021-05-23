@@ -8,7 +8,9 @@ onmessage = function ({ data }) {
       postMessage({
         response: 'random',
         board
-      });
+      }, [
+        board.buffer
+      ]);
       return;
     }
     case 'next': {
@@ -18,8 +20,7 @@ onmessage = function ({ data }) {
       working = false;
       postMessage({
         response: 'next',
-        size: board.size,
-        buffer: board.buffer
+        board
       }, [
         board.buffer
       ]);
@@ -37,10 +38,7 @@ function randomBoard(params) {
 }
 
 function nextBoard(params) {
-  let board = {
-    buffer: params.buffer,
-    size: params.size
-  };
+  let board = params.board;
   for (let i = 0; i < params.generations; i++) {
     board = next(board);
   }
@@ -55,9 +53,11 @@ function test() {
       size: 800,
       probability: 0.25
     });
-    board.generations = 1;
     const start = performance.now();
-    nextBoard(board);
+    nextBoard({
+      board,
+      generations: 1
+    });
     const end = performance.now();
     times[i] = end - start;
   }
@@ -78,4 +78,5 @@ function test() {
   });
   results.avg = sum / times.length;
   console.table(results);
+  console.log(times);
 }
