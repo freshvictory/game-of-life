@@ -4,7 +4,7 @@ import * as Canvas from './canvas.js';
 let worker = new Worker('./worker.js');
 
 let animator = -1;
-export function run({ canvas, previewCanvas, cellSize, speed, color, probability }) {
+export function run({ canvas, previewCanvas, size, speed, color, probability }) {
   worker = new Worker('./worker.js');
   cancelAnimationFrame(animator);
   setTimeout(function () {
@@ -12,7 +12,7 @@ export function run({ canvas, previewCanvas, cellSize, speed, color, probability
       canvas,
       previewCanvas,
       color,
-      cellSize,
+      size,
       speed,
       probability
     });
@@ -35,39 +35,9 @@ export function test() {
 }
 
 
-let previewCoordinates = {};
-export function preview(canvas, previewCanvas) {
-  const min = previewCanvas.width / 2;
-  const max = canvas.width - (previewCanvas.width / 2);
-  function mouseMove(evt) {
-    previewCoordinates = {
-      x: Math.min(Math.max(evt.layerX, min), max),
-      y: Math.min(Math.max(evt.layerY, min), max)
-    };
-  };
-
-  function mouseLeave() {
-    delete previewCoordinates.x;
-    previewCanvas.getContext('2d').clearRect(0, 0, previewCanvas.width, previewCanvas.width);
-    document.body.classList.remove('previewing');
-  };
-
-  function mouseEnter() {
-    document.body.classList.add('previewing');
-  }
-
-  canvas.addEventListener('mouseenter', mouseEnter);
-  canvas.addEventListener('mousemove', mouseMove);
-  canvas.addEventListener('mouseleave', mouseLeave);
-}
-
-
-function runInternal({ canvas, previewCanvas, cellSize, color, speed, probability }) {
-  const canvasOptions = Canvas.getOptions(canvas);
-  const previewOptions = Canvas.getOptions(previewCanvas);
-  const size = canvasOptions.canvasSize / cellSize;
-  Canvas.clear(canvas);
-  Canvas.clear(previewCanvas);
+function runInternal({ canvas, size, color, speed, probability }) {
+  const canvasOptions = Canvas.getOptions(canvas, size);
+  Canvas.clear(canvasOptions);
   worker.postMessage({
     request: 'random',
     params: {
@@ -78,8 +48,6 @@ function runInternal({ canvas, previewCanvas, cellSize, color, speed, probabilit
   worker.onmessage = function ({ data }) {
     prepRun({
       canvasOptions,
-      previewOptions,
-      cellSize,
       color,
       board: data.board,
       speed
@@ -88,15 +56,13 @@ function runInternal({ canvas, previewCanvas, cellSize, color, speed, probabilit
 }
 
 
-function prepRun({ canvasOptions, previewOptions, cellSize, color, board, speed }) {
+function prepRun({ canvasOptions, color, board, speed }) {
   let frameFunction =
     speed > 1 ? stepMultiGeneration
       : speed < 1 ? stepPartialGeneration
         : stepOnePerFrame;
   let runFrame = frameFunction({
     canvasOptions,
-    previewOptions,
-    cellSize,
     color,
     speed
   });
@@ -111,12 +77,7 @@ function prepRun({ canvasOptions, previewOptions, cellSize, color, board, speed 
 }
 
 
-function stepOnePerFrame({
-  canvasOptions,
-  previewOptions,
-  cellSize,
-  color
-}) {
+function stepOnePerFrame(options) {
   return function (board) {
     if (!board.buffer.byteLength) { return; }
     const canvasBuf = board.buffer.slice(0);
@@ -129,28 +90,16 @@ function stepOnePerFrame({
     }, [
       board.buffer
     ]);
-    Canvas.draw({
-      canvasOptions,
-      previewOptions,
-      previewCoordinates,
-      cellSize,
-      color,
-      board: {
-        buffer: canvasBuf,
-        size: board.size
-      }
-    });
+    options.board = {
+      buffer: canvasBuf,
+      size: board.size
+    };
+    Canvas.draw(options);
   };
 }
 
 
-function stepMultiGeneration({
-  canvasOptions,
-  previewOptions,
-  cellSize,
-  color,
-  speed
-}) {
+function stepMultiGeneration(options) {
   return function (board) {
     if (!board.buffer.byteLength) { return; }
     const canvasBuf = board.buffer.slice(0);
@@ -158,33 +107,21 @@ function stepMultiGeneration({
       request: 'next',
       params: {
         board,
-        generations: speed
+        generations: options.speed
       }
     }, [
       board.buffer
     ]);
-    Canvas.draw({
-      canvasOptions,
-      previewOptions,
-      previewCoordinates,
-      cellSize,
-      color,
-      board: {
-        buffer: canvasBuf,
-        size: board.size
-      }
-    });
+    options.board = {
+      buffer: canvasBuf,
+      size: board.size
+    };
+    Canvas.draw(options);
   };
 }
 
-function stepPartialGeneration({
-  canvasOptions,
-  previewOptions,
-  cellSize,
-  color,
-  speed
-}) {
-  speed = Math.round(1 / speed);
+function stepPartialGeneration(options) {
+  const speed = Math.round(1 / options.speed);
   let speedTimer = speed;
   return function (board) {
     if (!board.buffer.byteLength) { return; }
@@ -201,17 +138,11 @@ function stepPartialGeneration({
       ]);
       speedTimer = speed;
     }
-    Canvas.draw({
-      canvasOptions,
-      previewOptions,
-      previewCoordinates,
-      cellSize,
-      color,
-      board: {
-        buffer: canvasBuf,
-        size: board.size
-      }
-    });
+    options.board = {
+      buffer: canvasBuf,
+      size: board.size
+    };
+    Canvas.draw(options);
     speedTimer--;
   };
 }

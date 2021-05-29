@@ -51,7 +51,7 @@ main {
   /* flex-wrap: wrap; */
   grid-template-columns: 1fr auto;
   column-gap: 2rem;
-  margin: auto;
+  margin: 0 2rem;
 }
 
 .sidebar {
@@ -135,8 +135,7 @@ button:active {
   margin-right: 1.5rem;
 }
 
-#canvas,
-#preview {
+.canvas {
   display: block;
   border: 2px solid var(--c-border);
   border-radius: 0.5rem;
@@ -149,12 +148,8 @@ button:active {
 
 #canvas {
   margin: 3rem auto;
-}
-
-#preview {
-  pointer-events: none;
-  max-width: 300px;
-  margin: auto;
+  max-width: 90vmin;
+  max-height: 90vmin;
 }
 
 input[type="range"] {

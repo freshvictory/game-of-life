@@ -11,7 +11,7 @@
 
 <body>
   <main>
-    <canvas id="canvas" width="800" height="800"></canvas>
+    <canvas id="canvas" class="canvas" width="800" height="800"></canvas>
 
     <div class="sidebar">
       <h1>Conway's Game of Life</h1>
@@ -26,9 +26,9 @@
         <div class="inputs">
 
           <div class="slider-group">
-            <output id="cell-size-slider-value"></output>
-            <label for="cell-size-slider">Cell Width</label>
-            <input type="range" name="cell-size" id="cell-size-slider" value="1" step="1" min="0" max="7">
+            <output id="size-slider-value"></output>
+            <label for="size-slider">Rows</label>
+            <input type="range" name="size" id="size-slider" value="1" step="1" min="0" max="7">
           </div>
 
           <div class="slider-group">
@@ -54,17 +54,15 @@
 
       </form>
 
-      <canvas id="preview" width="100" height="100"></canvas>
-
     </div>
   </main>
   <script>
     const ELEMENT_OPTIONS = {
       controls: 'controls',
-      cellSize: {
+      size: {
         type: 'slider',
-        base: 'cell-size',
-        values: [1, 2, 4, 5, 8, 10, 20, 25]
+        base: 'size',
+        values: [800, 400, 200, 160, 100, 80, 40, 32]
       },
       speed: {
         type: 'slider',
@@ -86,8 +84,7 @@
       },
       stop: 'stop-button',
       run: 'run-button',
-      canvas: 'canvas',
-      previewCanvas: 'preview'
+      canvas: 'canvas'
     };
 
     const ELEMENTS = buildElements(ELEMENT_OPTIONS);
@@ -103,7 +100,7 @@
     }, ELEMENTS.cellColor.picker);
   </script>
   <script type="module">
-    import { run, stop, preview, test } from './index.js';
+    import { run, stop, test } from './index.js';
 
     on('click', function () {
       stop(ELEMENTS.canvas);
@@ -111,16 +108,12 @@
 
     window.test = test;
 
-    preview(ELEMENTS.canvas, ELEMENTS.previewCanvas);
-
     on('submit', function (event) {
       event.preventDefault();
       setColor('background', ELEMENTS.backgroundColor.value().hex, ELEMENTS.canvas);
-      setColor('background', ELEMENTS.backgroundColor.value().hex, ELEMENTS.previewCanvas);
       run({
         canvas: ELEMENTS.canvas,
-        previewCanvas: ELEMENTS.previewCanvas,
-        cellSize: ELEMENTS.cellSize.value(),
+        size: ELEMENTS.size.value(),
         speed: ELEMENTS.speed.value(),
         probability: ELEMENTS.probability.value(),
         color: ELEMENTS.cellColor.value().rgb
