@@ -11,18 +11,11 @@ function parseElementOption(option) {
     return document.getElementById(option);
   } else if (option.type === 'slider') {
     const slider = document.getElementById(option.base + '-slider');
-    const output = document.getElementById(option.base + '-slider-value');
     const value = function () {
       return option.values[parseInt(slider.value, 10)];
     };
-    const update = function () {
-      output.innerHTML = value();
-    };
-    on('input', update, slider);
-    update();
     return {
       slider,
-      output,
       value
     };
   } else if (option.type === 'color') {
