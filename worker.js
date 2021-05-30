@@ -1,8 +1,13 @@
 importScripts('./conway.js');
 
+
 let working = false;
 onmessage = function ({ data }) {
   switch (data.request) {
+    case 'test': {
+      test();
+      return;
+    }
     case 'random': {
       const board = randomBoard(data.params);
       postMessage({
@@ -26,23 +31,17 @@ onmessage = function ({ data }) {
       ]);
       return;
     }
-    case 'test': {
-      test();
-    }
   }
 };
 
 
 function randomBoard(params) {
-  return fromBoard(random(params.size, params.probability), params.size);
+  const random = Conway.random(params.size, params.probability);
+  return Conway.fromBoard(params.size, random);
 }
 
 function nextBoard(params) {
-  let board = params.board;
-  for (let i = 0; i < params.generations; i++) {
-    board = next(board);
-  }
-  return board;
+  return Conway.next(params.board.size, params.board.buffer, params.generations);
 }
 
 function test() {

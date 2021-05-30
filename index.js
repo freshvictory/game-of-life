@@ -5,7 +5,6 @@ let worker = new Worker('./worker.js');
 
 let animator = -1;
 export function run({ canvas, previewCanvas, size, speed, color, probability }) {
-  worker = new Worker('./worker.js');
   cancelAnimationFrame(animator);
   setTimeout(function () {
     runInternal({
@@ -21,14 +20,12 @@ export function run({ canvas, previewCanvas, size, speed, color, probability }) 
 
 
 export function stop(canvas) {
-  worker.terminate();
   cancelAnimationFrame(animator);
   Canvas.clear(canvas);
 }
 
 
 export function test() {
-  worker = new Worker('./worker.js');
   worker.postMessage({
     request: 'test'
   });
