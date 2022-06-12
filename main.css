@@ -36,7 +36,9 @@ body {
   margin: 0;
 }
 
-h1, p, output {
+h1,
+p,
+output {
   margin: 0;
 }
 

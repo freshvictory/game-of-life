@@ -1,122 +1,155 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Conway's Game of Life</title>
+    <link rel="stylesheet" href="main.css" />
+    <script src="util.js"></script>
+  </head>
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Conway's Game of Life</title>
-  <link rel="stylesheet" href="main.css">
-  <script src="util.js"></script>
-</head>
+  <body>
+    <main>
+      <canvas id="canvas" class="canvas" width="800" height="800"></canvas>
 
-<body>
-  <main>
-    <canvas id="canvas" class="canvas" width="800" height="800"></canvas>
+      <div class="sidebar">
+        <h1>Conway's Game of Life</h1>
 
-    <div class="sidebar">
-      <h1>Conway's Game of Life</h1>
-
-      <form id="controls">
-
-        <div class="actions">
-          <button id="run-button" type="submit">Run</button>
-          <button id="stop-button" type="button">Clear</button>
-        </div>
-
-        <div class="inputs">
-
-          <div class="slider-group">
-            <label for="size-slider">Number of Cells</label>
-            <input type="range" name="size" id="size-slider" value="4" step="1" min="0" max="7">
+        <form id="controls">
+          <div class="actions">
+            <button id="run-button" type="submit">Run</button>
+            <button id="stop-button" type="button">Clear</button>
           </div>
 
-          <div class="slider-group">
-            <label for="speed-slider">Speed</label>
-            <input type="range" name="speed" id="speed-slider" value="3" step="1" min="0" max="6">
+          <div class="inputs">
+            <div class="slider-group">
+              <label for="size-slider">Number of Cells</label>
+              <input
+                type="range"
+                name="size"
+                id="size-slider"
+                value="4"
+                step="1"
+                min="0"
+                max="7"
+              />
+            </div>
+
+            <div class="slider-group">
+              <label for="speed-slider">Speed</label>
+              <input
+                type="range"
+                name="speed"
+                id="speed-slider"
+                value="3"
+                step="1"
+                min="0"
+                max="6"
+              />
+            </div>
+
+            <div class="slider-group">
+              <label for="probability-slider">Probability</label>
+              <input
+                type="range"
+                name="probability"
+                id="probability-slider"
+                value="1"
+                step="1"
+                min="0"
+                max="5"
+              />
+            </div>
+
+            <div class="color-group">
+              <label for="cell-color-picker">Cell</label>
+              <input type="color" value="#8d5fbb" id="cell-color-picker" />
+              <label for="background-color-picker">Background</label>
+              <input type="color" id="background-color-picker" />
+            </div>
           </div>
+        </form>
+      </div>
+    </main>
+    <script>
+      const ELEMENT_OPTIONS = {
+        controls: "controls",
+        size: {
+          type: "slider",
+          base: "size",
+          values: [32, 40, 80, 100, 160, 200, 400, 800],
+        },
+        speed: {
+          type: "slider",
+          base: "speed",
+          values: [0.1, 0.25, 0.5, 1, 2, 5, 10],
+        },
+        probability: {
+          type: "slider",
+          base: "probability",
+          values: [0.05, 0.075, 0.1, 0.25, 0.5, 0.7],
+        },
+        cellColor: {
+          type: "color",
+          id: "cell-color-picker",
+        },
+        backgroundColor: {
+          type: "color",
+          id: "background-color-picker",
+        },
+        stop: "stop-button",
+        run: "run-button",
+        canvas: "canvas",
+      };
 
-          <div class="slider-group">
-            <label for="probability-slider">Probability</label>
-            <input type="range" name="probability" id="probability-slider" value="1" step="1" min="0" max="5">
-          </div>
+      const ELEMENTS = buildElements(ELEMENT_OPTIONS);
 
-          <div class="color-group">
-            <label for="cell-color-picker">Cell</label>
-            <input type="color" value="#8d5fbb" id="cell-color-picker">
-            <label for="background-color-picker">Background</label>
-            <input type="color" id="background-color-picker">
-          </div>
+      if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+        ELEMENTS.backgroundColor.picker.value = "#000000";
+      } else {
+        ELEMENTS.backgroundColor.picker.value = "#ffffff";
+      }
 
-        </div>
+      on(
+        "input",
+        function () {
+          setColor("accent", ELEMENTS.cellColor.value().hex);
+        },
+        ELEMENTS.cellColor.picker
+      );
+    </script>
+    <script type="module">
+      import { run, stop, test } from "./index.js";
 
-      </form>
+      on(
+        "click",
+        function () {
+          stop(ELEMENTS.canvas);
+        },
+        ELEMENTS.stop
+      );
 
-    </div>
-  </main>
-  <script>
-    const ELEMENT_OPTIONS = {
-      controls: 'controls',
-      size: {
-        type: 'slider',
-        base: 'size',
-        values: [32, 40, 80, 100, 160, 200, 400, 800]
-      },
-      speed: {
-        type: 'slider',
-        base: 'speed',
-        values: [0.1, 0.25, 0.5, 1, 2, 5, 10]
-      },
-      probability: {
-        type: 'slider',
-        base: 'probability',
-        values: [0.05, 0.075, 0.1, 0.25, 0.5, 0.7]
-      },
-      cellColor: {
-        type: 'color',
-        id: 'cell-color-picker'
-      },
-      backgroundColor: {
-        type: 'color',
-        id: 'background-color-picker'
-      },
-      stop: 'stop-button',
-      run: 'run-button',
-      canvas: 'canvas'
-    };
+      window.test = test;
 
-    const ELEMENTS = buildElements(ELEMENT_OPTIONS);
-
-    if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      ELEMENTS.backgroundColor.picker.value = '#000000';
-    } else {
-      ELEMENTS.backgroundColor.picker.value = '#ffffff';
-    }
-
-    on('input', function () {
-      setColor('accent', ELEMENTS.cellColor.value().hex);
-    }, ELEMENTS.cellColor.picker);
-  </script>
-  <script type="module">
-    import { run, stop, test } from './index.js';
-
-    on('click', function () {
-      stop(ELEMENTS.canvas);
-    }, ELEMENTS.stop);
-
-    window.test = test;
-
-    on('submit', function (event) {
-      event.preventDefault();
-      setColor('background', ELEMENTS.backgroundColor.value().hex, ELEMENTS.canvas);
-      run({
-        canvas: ELEMENTS.canvas,
-        size: ELEMENTS.size.value(),
-        speed: ELEMENTS.speed.value(),
-        probability: ELEMENTS.probability.value(),
-        color: ELEMENTS.cellColor.value().rgb
-      });
-    }, ELEMENTS.controls);
-  </script>
-</body>
-
+      on(
+        "submit",
+        function (event) {
+          event.preventDefault();
+          setColor(
+            "background",
+            ELEMENTS.backgroundColor.value().hex,
+            ELEMENTS.canvas
+          );
+          run({
+            canvas: ELEMENTS.canvas,
+            size: ELEMENTS.size.value(),
+            speed: ELEMENTS.speed.value(),
+            probability: ELEMENTS.probability.value(),
+            color: ELEMENTS.cellColor.value().rgb,
+          });
+        },
+        ELEMENTS.controls
+      );
+    </script>
+  </body>
 </html>
