@@ -17,7 +17,28 @@
 
         <form id="controls">
           <div class="actions">
-            <button id="run-button" type="submit">Run</button>
+            <button id="run-button" name="_action" value="run" type="submit">
+              New
+            </button>
+            <fieldset>
+              <legend class="visually-hidden">Running actions</legend>
+              <button
+                id="play-button"
+                type="submit"
+                name="_action"
+                value="pause"
+              >
+                Pause
+              </button>
+              <button
+                id="pause-button"
+                type="submit"
+                name="_action"
+                value="step"
+              >
+                Step
+              </button>
+            </fieldset>
             <button id="stop-button" type="button">Clear</button>
           </div>
 
@@ -99,6 +120,8 @@
         },
         stop: "stop-button",
         run: "run-button",
+        play: "play-button",
+        step: "step-button",
         canvas: "canvas",
       };
 
@@ -119,7 +142,7 @@
       );
     </script>
     <script type="module">
-      import { run, stop, test } from "./index.js";
+      import { run, play, pause, step, stop, test } from "./index.js";
 
       on(
         "click",
@@ -140,13 +163,42 @@
             ELEMENTS.backgroundColor.value().hex,
             ELEMENTS.canvas
           );
-          run({
-            canvas: ELEMENTS.canvas,
-            size: ELEMENTS.size.value(),
-            speed: ELEMENTS.speed.value(),
-            probability: ELEMENTS.probability.value(),
-            color: ELEMENTS.cellColor.value().rgb,
-          });
+          const action = new FormData(event.target).get("_action");
+          switch (action) {
+            case "run":
+              ELEMENTS.play.value = "pause";
+              ELEMENTS.play.textContent = "Pause";
+              run({
+                canvas: ELEMENTS.canvas,
+                size: ELEMENTS.size.value(),
+                probability: 0.5,
+                speed: ELEMENTS.speed.value(),
+                color: ELEMENTS.cellColor.value().rgb,
+              });
+              break;
+            case "pause":
+              ELEMENTS.play.value = "play";
+              ELEMENTS.play.textContent = "Play";
+              pause();
+              break;
+            case "play":
+              ELEMENTS.play.value = "pause";
+              ELEMENTS.play.textContent = "Pause";
+              play({
+                canvas: ELEMENTS.canvas,
+                speed: ELEMENTS.speed.value(),
+                color: ELEMENTS.cellColor.value().rgb,
+              });
+              break;
+            case "step":
+              ELEMENTS.play.value = "play";
+              ELEMENTS.play.textContent = "Play";
+              step({
+                canvas: ELEMENTS.canvas,
+                color: ELEMENTS.cellColor.value().rgb,
+              });
+              break;
+          }
         },
         ELEMENTS.controls
       );
