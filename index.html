@@ -163,7 +163,7 @@
             ELEMENTS.backgroundColor.value().hex,
             ELEMENTS.canvas
           );
-          const action = new FormData(event.target).get("_action");
+          const action = event.submitter.value;
           switch (action) {
             case "run":
               ELEMENTS.play.value = "pause";
