@@ -4,7 +4,351 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Conway's Game of Life</title>
-    <link rel="stylesheet" href="main.css" />
+    <style>
+      :root {
+        --c-border: var(--c-text);
+        --c-shadow: #666666;
+        --c-background-low: #f4f4f4;
+        --c-background-middle: #e2e2e2;
+        --c-background-high: #777777;
+        --c-background: #fefefe;
+        --c-text: #222222;
+        --c-accent: #8d5fbb;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --c-background: #000000;
+          --c-background-high: #999999;
+          --c-background-middle: #1d1d1d;
+          --c-background-low: #0a0a0a;
+          --c-border: var(--c-text);
+          --c-text: #cccccc;
+          --c-shadow: #111111;
+        }
+      }
+
+      .visually-hidden {
+        clip: rect(0 0 0 0);
+        clip-path: inset(50%);
+        height: 1px;
+        overflow: hidden;
+        position: absolute;
+        white-space: nowrap;
+        width: 1px;
+      }
+
+      html {
+        background-color: var(--c-background);
+        color: var(--c-text);
+        font-family: sans-serif;
+        font-variant: all-small-caps;
+        letter-spacing: 0.3px;
+        font-size: 16px;
+      }
+
+      body {
+        font-size: 1.25rem;
+        display: grid;
+        margin: 0;
+      }
+
+      h1,
+      p,
+      output,
+      fieldset {
+        margin: 0;
+      }
+
+      fieldset {
+        padding: 0;
+        border: none;
+      }
+
+      h1 {
+        margin-bottom: 1rem;
+        text-align: left;
+        font-size: 2rem;
+      }
+
+      main {
+        display: grid;
+        grid-template-columns: auto auto;
+        column-gap: 2rem;
+        margin: 0 auto;
+      }
+
+      .sidebar {
+        box-sizing: border-box;
+        margin: 1rem 0;
+        width: 300px;
+        max-height: max-content;
+      }
+
+      button {
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        background-color: var(--c-background);
+        color: var(--c-text);
+        border: 2px solid var(--c-border);
+        border-radius: 0.5rem;
+        font-variant: inherit;
+        padding: 0.5rem 1rem;
+        margin: 0;
+        font-size: 1.25rem;
+        font-weight: bold;
+        box-shadow: 0 2px 0 0 var(--c-border);
+        transform: translateY(0);
+        transition: background-color 100ms, transform 100ms, box-shadow 100ms;
+      }
+
+      button:hover {
+        box-shadow: 0 3px 0 0 var(--c-border);
+        background-color: var(--c-background-low);
+        transform: translateY(-1px);
+      }
+
+      button:active {
+        box-shadow: 0 1px 0 0 var(--c-border);
+        background-color: var(--c-background-middle);
+        transform: translateY(1px);
+      }
+
+      #controls {
+        max-width: 300px;
+        box-sizing: border-box;
+        margin: auto;
+        margin-bottom: 2rem;
+        display: grid;
+        column-gap: 1.5rem;
+        row-gap: 1.5rem;
+      }
+
+      .actions,
+      .inputs {
+        display: grid;
+        gap: 1rem;
+      }
+
+      .actions fieldset {
+        display: flex;
+        gap: 1rem;
+      }
+
+      .actions button {
+        width: 100%;
+      }
+
+      .actions fieldset button {
+        width: 50%;
+        display: inline-block;
+      }
+
+      .slider-group label {
+        font-size: 1rem;
+      }
+
+      .slider-group output {
+        display: inline-block;
+        font-size: 1.5rem;
+        font-variant: normal;
+        font-weight: bold;
+        line-height: 1;
+      }
+
+      .slider-row input {
+        display: block;
+      }
+
+      .color-group {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .color-group label {
+        margin-right: 0.25rem;
+        font-size: 1rem;
+        text-align: right;
+      }
+
+      .color-group input:first-of-type {
+        display: block;
+        margin-right: 1.5rem;
+      }
+
+      .canvas {
+        display: block;
+        border: 2px solid var(--c-border);
+        border-radius: 0.5rem;
+        background-color: var(--c-background);
+        image-rendering: pixelated;
+        image-rendering: crisp-edges;
+        box-sizing: border-box;
+        width: 100%;
+      }
+
+      #canvas {
+        margin: 3rem 0;
+        width: 90vmin;
+        height: 90vmin;
+      }
+
+      input[type="range"] {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 100%;
+        box-sizing: border-box;
+        border-radius: 0.5rem;
+        background-color: var(--c-background);
+        height: 3rem;
+        border: 2px solid var(--c-border);
+        padding: 0.5rem;
+        margin: 0;
+        margin-top: 0.25rem;
+      }
+
+      input[type="range"]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        height: 1.75rem;
+        width: 3.5rem;
+        border-radius: 0.25rem;
+        background-color: var(--c-accent);
+        border: 2px solid var(--c-border);
+        box-shadow: 0px 2px 0 0 var(--c-border);
+        transform: translateY(0);
+        transition: background-color 100ms, transform 100ms, box-shadow 100ms;
+      }
+
+      input[type="range"]::-webkit-slider-thumb:hover {
+        box-shadow: 0px 3px 0 0 var(--c-border);
+        transform: translateY(-1px);
+      }
+
+      input[type="range"]::-webkit-slider-thumb:active {
+        box-shadow: 0px 1px 0 0 var(--c-border);
+        transform: translateY(1px);
+      }
+
+      input[type="range"]::-moz-range-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        height: 1.5rem;
+        width: 3.5rem;
+        border-radius: 0.25rem;
+        background-color: var(--c-accent);
+        border: 2px solid var(--c-border);
+        box-shadow: 0px 2px 0 0 var(--c-border);
+        transform: translateY(0);
+        transition: background-color 100ms, transform 100ms, box-shadow 100ms;
+      }
+
+      input[type="range"]::-moz-range-thumb:hover {
+        box-shadow: 0px 3px 0 0 var(--c-border);
+        transform: translateY(-1px);
+      }
+
+      input[type="range"]::-moz-range-thumb:active {
+        box-shadow: 0px 1px 0 0 var(--c-border);
+        transform: translateY(1px);
+      }
+
+      input[type="color" i] {
+        -webkit-appearance: none;
+        appearance: none;
+        border: 2px solid var(--c-border);
+        background-color: var(--c-background);
+        box-shadow: 0px 2px 0 0 var(--c-border);
+        transform: translateY(0);
+        transition: background-color 100ms, transform 100ms, box-shadow 100ms;
+        border-radius: 0.25rem;
+        overflow: hidden;
+        padding: 0;
+      }
+
+      input[type="color" i]:hover {
+        box-shadow: 0px 3px 0 0 var(--c-border);
+        transform: translateY(-1px);
+      }
+
+      input[type="color" i]:active {
+        box-shadow: 0px 1px 0 0 var(--c-border);
+        transform: translateY(1px);
+      }
+
+      input[type="color"]::-webkit-color-swatch-wrapper {
+        -webkit-appearance: none;
+        appearance: none;
+        padding: 0;
+      }
+
+      input[type="color"]::-webkit-color-swatch {
+        -webkit-appearance: none;
+        appearance: none;
+        border: none;
+      }
+
+      input[type="color"]::-moz-color-swatch {
+        appearance: none;
+        border: none;
+      }
+
+      /* This was cool, but Chrome has a bug with calc
+ * and different units in media queries.
+ */
+      /* @media screen and (max-width: calc(90vmin + 300px + 3rem + 1px)) {
+  .sidebar {
+    width: 100%;
+    margin: 0 1rem 2rem;
+  }
+
+  h1 {
+    text-align: center;
+  }
+} */
+
+      @media screen and (max-width: 1300px) {
+        main {
+          grid-template-columns: 1fr;
+        }
+
+        .sidebar {
+          width: 100%;
+          margin: 0 auto 2rem auto;
+        }
+
+        #canvas {
+          margin: 0 auto;
+        }
+
+        h1 {
+          text-align: center;
+        }
+
+        #controls {
+          max-width: 100%;
+          grid-row-gap: 1rem;
+          padding: 0 1rem;
+        }
+
+        .actions,
+        .inputs {
+          grid-template-columns: 1fr 1fr;
+        }
+
+        #preview {
+          display: none;
+        }
+      }
+
+      @media screen and (max-width: 550px) {
+        .actions,
+        .inputs {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
     <script src="util.js"></script>
   </head>
 
@@ -98,7 +442,7 @@
         size: {
           type: "slider",
           base: "size",
-          values: [32, 40, 80, 100, 160, 200, 400, 800],
+          values: [32, 40, 80, 100, 160, 200, 400, 1600],
         },
         speed: {
           type: "slider",
