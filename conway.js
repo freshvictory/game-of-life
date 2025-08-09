@@ -1,31 +1,31 @@
-importScripts("./wasm.js");
+import init from "./wasm.js";
+
+const Module = await init();
 
 /**
  * @typedef {{ size: number, buffer: ArrayBuffer }} Board
  */
 
-const ConwayC = {
-  build() {
-    ConwayC.fromBoard = Module.cwrap("fromBoard", null, [
+class ConwayC {
+  constructor(module) {
+    this.fromBoard = module.cwrap("fromBoard", null, [
       "number",
       "array",
       "number",
     ]);
 
-    ConwayC.next = Module.cwrap("next", null, [
+    this.next = module.cwrap("next", null, [
       "number",
       "array",
       "number",
       "number",
     ]);
-  },
-};
+  }
+}
 
-Module.onRuntimeInitialized = function () {
-  ConwayC.build();
-};
+const conwayC = new ConwayC(Module);
 
-const Conway = {
+export const Conway = {
   /**
    * Creates a random board with given size
    * and cell life probability.
@@ -53,7 +53,7 @@ const Conway = {
    */
   fromBoard(size, board) {
     const buf = Module._malloc(size * size);
-    ConwayC.fromBoard(size, board, buf);
+    conwayC.fromBoard(size, board, buf);
     const array = Module.HEAPU8.slice(buf, buf + size * size);
     Module._free(buf);
     return {
@@ -73,7 +73,7 @@ const Conway = {
    */
   next(size, board, generations) {
     const buf = Module._malloc(size * size);
-    ConwayC.next(size, new Uint8Array(board), generations, buf);
+    conwayC.next(size, new Uint8Array(board), generations, buf);
     const array = Module.HEAPU8.slice(buf, buf + size * size);
     Module._free(buf);
     return {

@@ -1,4 +1,4 @@
-importScripts("./conway.js");
+import { Conway } from "./conway.js";
 
 let working = false;
 

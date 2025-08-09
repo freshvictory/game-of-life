@@ -4,7 +4,7 @@ import * as Canvas from "./canvas.js";
  * @typedef { import("./canvas.js").CanvasOptions } CanvasOptions
  */
 
-let worker = new Worker("./worker.js");
+let worker = new Worker("worker.js", { type: "module" });
 
 let animator = -1;
 

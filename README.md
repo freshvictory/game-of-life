@@ -14,6 +14,6 @@ If you change `conway.c` and want to recompile, you'll first need `emscripten` w
 
 Then, run:
 
-```
-emcc -O3 conway.c -s WASM=1 -o wasm.js -s EXPORTED_FUNCTIONS='["_fromBoard", "_next", "_malloc", "_free"]' -s EXPORTED_RUNTIME_METHODS='["ccall", "cwrap"]'
+```sh
+emcc -O3 conway.c -s WASM=1 -o wasm.js -s EXPORTED_FUNCTIONS='["_fromBoard", "_next", "_malloc", "_free"]' -s EXPORTED_RUNTIME_METHODS='["ccall", "cwrap", "HEAPU8"]' -s EXPORT_ES6=1 -s ENVIRONMENT=worker
 ```
